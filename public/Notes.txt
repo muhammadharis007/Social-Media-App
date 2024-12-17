@@ -1,0 +1,44 @@
+/////////////////////////////////////////////////////////////////////////////////////////
+BS_invoker Game:
+
+//Reqs
+
+1) Add friends
+2) Turn based writting
+3) 30 words limit
+4) 5 people cap??
+5) 2 min per person (1 reading previous + 1 writting your own)??
+6) score -> voting after each iteration?? -> 
+
+
+
+
+//Optional
+what am i? Game:
+
+1) turn based
+2) 10 questions limit??
+3) Display others avatar on thier pfp
+4) Hide your own
+5) score based on correct answer + no of questions used
+6) total 5 people??
+7) Elimination based??
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+Recommendation system:
+
+What should it be based upon?
+1) Mutual friends
+2) no of total friends
+3) no of common interests
+4) matching sequence??
+5) Engagement (no of likes, no of posts)
+6) commonly liked posts
+
+
+Things to consider:
+1) Normalize the accounts with overly high Engagement
+2) hide already added friends
+3) hide yourself
+
+

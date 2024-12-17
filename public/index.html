@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style-login.css" />
+    <title>Login & Register</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="auth">
+        <div class="auth__content">
+          <form id="authForm" class="auth__form">
+            <div>
+              <h1 id="formTitle" class="auth__title">
+                <span>Welcome</span> Back
+              </h1>
+              <p id="formDescription" class="auth__description">
+                Please login to continue.
+              </p>
+            </div>
+
+            <div>
+              <div class="auth__inputs">
+                <!-- Username -->
+                <div>
+                  <label for="username" class="auth__label">Username</label>
+                  <input
+                    class="auth__input"
+                    id="username"
+                    name="username"
+                    placeholder="Enter your username"
+                    required
+                  />
+                </div>
+
+                <!-- Password -->
+                <div>
+                  <label for="password" class="auth__label">Password</label>
+                  <div class="auth__box">
+                    <input
+                      class="auth__input"
+                      type="password"
+                      id="password"
+                      name="password"
+                      placeholder="Enter your password"
+                      required
+                    />
+                    <i class="ri-eye-off-line auth__eye" id="input-icon"></i>
+                  </div>
+                </div>
+
+                <!-- Register Form Additional Fields (only visible in Register Mode) -->
+                <div id="registerFields" style="display: none">
+                  <!-- Name -->
+                  <div>
+                    <label for="name" class="auth__label">Name</label>
+                    <input
+                      class="auth__input"
+                      id="name"
+                      name="name"
+                      placeholder="Enter your name"
+                    />
+                  </div>
+
+                  <!-- Email -->
+                  <div>
+                    <label for="email" class="auth__label">Email</label>
+                    <input
+                      class="auth__input"
+                      type="email"
+                      id="email"
+                      name="email"
+                      placeholder="Enter your email"
+                    />
+                  </div>
+                </div>
+
+                <!-- Interests Selection (visible only in Register Mode) -->
+                <div id="interestsDiv" style="display: none">
+                  <label for="interests" class="auth__label"
+                    >Select Interests (minimum 3)</label
+                  >
+                  <div class="interests__box">
+                    <div class="interest__item" data-interest="coding">
+                      Coding
+                    </div>
+                    <div class="interest__item" data-interest="reading">
+                      Reading
+                    </div>
+                    <div class="interest__item" data-interest="music">
+                      Music
+                    </div>
+                    <div class="interest__item" data-interest="sports">
+                      Sports
+                    </div>
+                    <div class="interest__item" data-interest="cp">Cp</div>
+                    <div class="interest__item" data-interest="anime">
+                      Anime
+                    </div>
+                    <div class="interest__item" data-interest="gooning">
+                      Gooning
+                    </div>
+                    <div class="interest__item" data-interest="writting">
+                      Writting
+                    </div>
+                    <div class="interest__item" data-interest="eating">
+                      Eating
+                    </div>
+                    <div class="interest__item" data-interest="girls">
+                      Dishwasher
+                    </div>
+                    <div class="interest__item" data-interest="women">
+                      Objects
+                    </div>
+                    <!-- Add more interests here -->
+                  </div>
+                  <p
+                    id="interestError"
+                    style="color: red; font-size: 14px; display: none"
+                  >
+                    Please select at least 3 interests.
+                  </p>
+                </div>
+              </div>
+
+              <div id="error-message" style="color: red; font-size: 14px"></div>
+
+              <div class="auth__buttons">
+                <button type="submit" class="auth__button">Submit</button>
+                <button
+                  type="button"
+                  id="toggleMode"
+                  class="auth__button auth__button-ghost"
+                >
+                  Register
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/script-login.js"></script>
+  </body>
+</html>
