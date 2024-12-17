@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const mongoose = require("mongoose");
-const User = require("../models/User"); // Import the User model
+const fs = require("fs");
+const path = require("path");
+
+const pathToUsersFile = path.join(__dirname, "../users.json");
+folder;
 
 // Middleware to check authentication
 const isAuthenticated = (req, res, next) => {
@@ -11,55 +14,71 @@ const isAuthenticated = (req, res, next) => {
   next();
 };
 
-// Get current logged-in user details
-router.get("/me", isAuthenticated, async (req, res) => {
+// Helper function to read users from the JSON file
+const readUsersFromFile = () => {
   try {
-    const user = await User.findById(req.session.userId) // Use findById for _id lookup
-      .select("username interests friends profileImage");
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    res.json({
-      username: user.username,
-      profileImage: user.profileImage,
-      friends: user.friends,
-      interests: user.interests,
-    });
-  } catch (error) {
-    console.error("Error fetching user:", error);
-    res.status(500).json({ error: "Server error" });
+    const data = fs.readFileSync(pathToUsersFile);
+    return JSON.parse(data);
+  } catch (err) {
+    return [];
   }
+};
+
+// Helper function to write users to the JSON file
+const writeUsersToFile = (users) => {
+  try {
+    fs.writeFileSync(pathToUsersFile, JSON.stringify(users, null, 2));
+  } catch (err) {
+    console.error("Error writing to users file:", err);
+  }
+};
+
+// Get current logged-in user details
+router.get("/me", isAuthenticated, (req, res) => {
+  const users = readUsersFromFile();
+  const user = users.find((user) => user.username === req.session.userId);
+
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  res.json({
+    username: user.username,
+    name: user.name,
+    profileImage: user.profileImage,
+    friends: user.friends,
+    interests: user.interests,
+    pfp: user.pfp,
+  });
 });
 
-// Get details of a specific user by userId
-router.get("/:userId", async (req, res) => {
-  const { userId } = req.params;
+// Get details of a specific user by username
+router.get("/:username", (req, res) => {
+  const { username } = req.params;
 
-  // Validate userId format
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(400).json({ error: "Invalid user ID format" });
+  const users = readUsersFromFile();
+  const user = users.find((user) => user.username === username);
+
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
   }
 
-  try {
-    const user = await User.findById(userId) // Use findById for _id lookup
-      .select("username interests friends profileImage");
+  res.json({
+    username: user.username,
+    profileImage: user.profileImage,
+    friends: user.friends,
+    interests: user.interests,
+  });
+});
 
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
+router.get("/", (req, res) => {
+  const users = readUsersFromFile();
 
-    res.json({
-      username: user.username,
-      profileImage: user.profileImage,
-      friends: user.friends,
-      interests: user.interests,
-    });
-  } catch (error) {
-    console.error("Error fetching user:", error);
-    res.status(500).json({ error: "Server error" });
+  if (!users || users.length === 0) {
+    return res.status(404).json({ error: "No users found" });
   }
+
+  res.json(users);
 });
 
 module.exports = router;

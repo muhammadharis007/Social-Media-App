@@ -1,55 +1,124 @@
 const express = require("express");
-const User = require("../models/User");
-const mongoose = require("mongoose");
+const fs = require("fs");
+const path = require("path");
 
 const router = express.Router();
 
-// Helper function to validate ObjectId
+// Path to users.json (assuming it's in the root directory)
+const pathToUsersFile = path.join(__dirname, "../users.json");
+
+// Helper function to read users from the JSON file
+const readUsersFromFile = () => {
+  try {
+    const data = fs.readFileSync(pathToUsersFile);
+    return JSON.parse(data);
+  } catch (err) {
+    return [];
+  }
+};
+
+// Helper function to write users to the JSON file
+const writeUsersToFile = (users) => {
+  try {
+    fs.writeFileSync(pathToUsersFile, JSON.stringify(users, null, 2));
+  } catch (err) {
+    console.error("Error writing to users file:", err);
+  }
+};
+
+// Helper function to validate ObjectIds
 const validateObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id);
 
-// Suggest Friends Route
-router.get("/suggest/:userId", async (req, res) => {
+// Add Friend
+router.post("/add", (req, res) => {
+  const { userId, friendId } = req.body;
+
+  if (!validateObjectId(userId) || !validateObjectId(friendId)) {
+    return res.status(400).json({ error: "Invalid user ID format" });
+  }
+
+  const users = readUsersFromFile();
+  const user = users.find((user) => user.id === userId);
+  const friend = users.find((user) => user.id === friendId);
+
+  if (!user || !friend) {
+    return res.status(404).json({ error: "User or friend not found" });
+  }
+
+  // Check if they are already friends
+  if (!user.friends.includes(friendId)) {
+    user.friends.push(friendId);
+  }
+  if (!friend.friends.includes(userId)) {
+    friend.friends.push(userId);
+  }
+
+  writeUsersToFile(users);
+
+  res.json({ message: "Friend added successfully" });
+});
+
+// Remove Friend
+router.post("/remove", (req, res) => {
+  const { userId, friendId } = req.body;
+
+  if (!validateObjectId(userId) || !validateObjectId(friendId)) {
+    return res.status(400).json({ error: "Invalid user ID format" });
+  }
+
+  const users = readUsersFromFile();
+  const user = users.find((user) => user.id === userId);
+  const friend = users.find((user) => user.id === friendId);
+
+  if (!user || !friend) {
+    return res.status(404).json({ error: "User or friend not found" });
+  }
+
+  // Remove the friends
+  user.friends = user.friends.filter((id) => id !== friendId);
+  friend.friends = friend.friends.filter((id) => id !== userId);
+
+  writeUsersToFile(users);
+
+  res.json({ message: "Friend removed successfully" });
+});
+
+// Fetch User's Feed
+router.get("/feed/:userId", (req, res) => {
   const { userId } = req.params;
 
   if (!validateObjectId(userId)) {
     return res.status(400).json({ error: "Invalid user ID format" });
   }
 
-  try {
-    // Fetch the user with their friends populated
-    const user = await User.findById(userId).populate("friends", "_id friends");
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
+  const users = readUsersFromFile();
+  const user = users.find((user) => user.id === userId);
 
-    const userFriends = new Set(
-      user.friends.map((friend) => friend._id.toString())
-    );
-
-    // Collect friends of friends
-    const suggestedFriends = new Set();
-    user.friends.forEach((friend) => {
-      friend.friends.forEach((friendOfFriend) => {
-        const friendOfFriendId = friendOfFriend.toString();
-        if (
-          friendOfFriendId !== userId && // Exclude the user themselves
-          !userFriends.has(friendOfFriendId) // Exclude existing friends
-        ) {
-          suggestedFriends.add(friendOfFriendId);
-        }
-      });
-    });
-
-    // Fetch suggested friend details
-    const suggestions = await User.find({
-      _id: { $in: Array.from(suggestedFriends) },
-    }).select("username profileImage interests");
-
-    res.json(suggestions);
-  } catch (err) {
-    console.error("Error fetching friend suggestions:", err);
-    res.status(500).json({ error: "Server error fetching recommendations" });
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
   }
+
+  // Get user's posts and friends' posts
+  const posts = [
+    ...user.posts.map((post) => ({
+      ...post,
+      author: user.username,
+    })),
+    ...user.friends.flatMap((friendId) => {
+      const friend = users.find((user) => user.id === friendId);
+      return friend
+        ? friend.posts.map((post) => ({
+            ...post,
+            author: friend.username,
+          }))
+        : [];
+    }),
+  ];
+
+  // Sort posts by date (most recent first)
+  posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  res.json(posts);
 });
 
 module.exports = router;

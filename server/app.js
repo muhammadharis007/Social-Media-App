@@ -1,36 +1,44 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const session = require("express-session");
-const MongoStore = require("connect-mongo");
 const path = require("path");
 const bcrypt = require("bcrypt");
-const User = require("./models/User");
+const fs = require("fs");
+const pathToUsersFile = path.join(__dirname, "users.json");
 
 const app = express();
 
-// MongoDB Connection
-mongoose
-  .connect("mongodb://localhost:27017/mydatabase")
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("MongoDB Connection Error:", err));
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Session setup WITH MongoStore
+// Session setup (without MongoStore)
 app.use(
   session({
     secret: "social-app-secret",
     resave: false,
     saveUninitialized: true,
-    store: MongoStore.create({
-      mongoUrl: "mongodb://127.0.0.1:27017/social-app",
-      ttl: 14 * 24 * 60 * 60, // 14 days
-      autoRemove: "native",
-    }),
+    cookie: { secure: false }, // Adjust for non-HTTPS (if using HTTPS, set to true)
   })
 );
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Helper function to read users from the JSON file
+const readUsersFromFile = () => {
+  try {
+    const data = fs.readFileSync(pathToUsersFile);
+    return JSON.parse(data);
+  } catch (err) {
+    return [];
+  }
+};
+
+// Helper function to write users to the JSON file
+const writeUsersToFile = (users) => {
+  try {
+    fs.writeFileSync(pathToUsersFile, JSON.stringify(users, null, 2));
+  } catch (err) {
+    console.error("Error writing to users file:", err);
+  }
+};
 
 // Routes
 const authRoutes = express.Router();
@@ -40,21 +48,23 @@ authRoutes.post("/register", async (req, res) => {
   const { username, password, interests } = req.body;
 
   try {
-    const existingUser = await User.findOne({ username });
+    const users = readUsersFromFile();
+    const existingUser = users.find((user) => user.username === username);
     if (existingUser) {
       return res.status(400).json({ error: "Username already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({
+    const newUser = {
       username,
       password: hashedPassword,
       interests,
       friends: [],
-    });
+    };
 
-    await newUser.save();
+    users.push(newUser);
+    writeUsersToFile(users);
 
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
@@ -65,15 +75,17 @@ authRoutes.post("/register", async (req, res) => {
 
 // Login
 authRoutes.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
   try {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username });
+    const users = readUsersFromFile();
+    const user = users.find((user) => user.username === username);
     if (!user) return res.status(404).json({ error: "User not found" });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
 
-    req.session.userId = user._id; // Use MongoDB's `_id`
+    req.session.userId = user.username; // Store the username for session
     res.json({ message: "Login successful" });
   } catch (err) {
     console.error("Error logging in:", err);
@@ -94,47 +106,33 @@ authRoutes.post("/logout", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 
-const userRoutes = express.Router();
+const profileRoutes = express.Router();
 
 // Fetch current user info
-userRoutes.get("/me", (req, res) => {
+profileRoutes.get("/me", (req, res) => {
   if (!req.session.userId) {
     return res.status(401).json({ error: "Not authenticated" });
   }
 
-  User.findById(req.session.userId, "username") // Use MongoDB's `_id`
-    .then((user) => {
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-      res.json({ username: user.username });
-    })
-    .catch((err) => {
-      console.error("Error fetching user:", err);
-      res.status(500).json({ error: "Server error" });
-    });
-});
-
-// Fetch another user by ID
-userRoutes.get("/:userId", async (req, res) => {
-  try {
-    const user = await User.findById(req.params.userId).select(
-      "username interests friends profileImage"
-    );
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-    res.json(user);
-  } catch (error) {
-    console.error("Error fetching user:", error);
-    res.status(500).json({ error: "Server error" });
+  const users = readUsersFromFile();
+  const user = users.find((user) => user.username === req.session.userId);
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
   }
+  res.json({ username: user.username });
 });
 
-app.use("/api/user", userRoutes);
+// Fetch another user by username
+profileRoutes.get("/:username", (req, res) => {
+  const users = readUsersFromFile();
+  const user = users.find((user) => user.username === req.params.username);
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+  res.json(user);
+});
 
-app.use("/api/friends", require("./routes/friends"));
-app.use("/api/recommend", require("./routes/recommend"));
+app.use("/api/profiles", profileRoutes);
 
 // Serve feed.html with basic authentication check
 app.get("/feed.html", (req, res) => {
@@ -153,7 +151,7 @@ app.get("*", (req, res) => {
 });
 
 // Start Server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });

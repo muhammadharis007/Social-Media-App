@@ -1,60 +1,92 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
-const User = require("../models/User"); // Import the User model
+const fs = require("fs");
+const path = require("path");
 
 const router = express.Router();
+
+// Path to users.json (assuming it's in the root directory)
+const pathToUsersFile = path.join(__dirname, "../users.json");
+
+// Helper function to read users from the JSON file
+const readUsersFromFile = () => {
+  try {
+    const data = fs.readFileSync(pathToUsersFile);
+    return JSON.parse(data);
+  } catch (err) {
+    return [];
+  }
+};
+
+const writeUsersToFile = (users) => {
+  try {
+    fs.writeFileSync(pathToUsersFile, JSON.stringify(users, null, 2));
+  } catch (err) {
+    console.error("Error writing to users file:", err);
+  }
+};
+// Registration Route
 router.post("/register", async (req, res) => {
-  const { username, password, interests } = req.body;
+  const { username, password, name, email, interests } = req.body;
 
   try {
-    const existingUser = await User.findOne({ username });
+    const users = readUsersFromFile();
+    const existingUser = users.find((user) => user.username === username);
     if (existingUser) {
       return res.status(400).json({ error: "Username already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({
+    const newUser = {
       username,
       password: hashedPassword,
+      name,
+      email,
       interests,
       friends: [],
-    });
+    };
 
-    await newUser.save();
-
-    res.status(201).json({
-      message: "User registered successfully",
-      user: { id: newUser._id, username: newUser.username }, // Map _id to id
-    });
+    users.push(newUser);
+    writeUsersToFile(users);
   } catch (error) {
     console.error("Error during registration:", error);
     res.status(500).json({ error: "Server error during registration" });
   }
 });
 
+// Login Route
 router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
-    const user = await User.findOne({ username });
+    const users = readUsersFromFile();
+    const user = users.find((user) => user.username === username);
     if (!user) return res.status(404).json({ error: "User not found" });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
 
-    req.session.userId = user._id; // Use MongoDB's _id
+    // Store the username in session
+    req.session.userId = user.username;
 
     res.json({
       message: "Login successful",
-      user: { id: user._id, username: user.username }, // Map _id to id
+      user: { username: user.username },
     });
   } catch (err) {
+    console.error("Error logging in:", err);
     res.status(500).json({ error: "Error logging in" });
   }
 });
 
-// Logout
+// Logout Route
 router.post("/logout", (req, res) => {
-  req.session.destroy();
-  res.json({ message: "Logged out successfully" });
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ error: "Logout failed" });
+    }
+    res.json({ message: "Logged out successfully" });
+  });
 });
+
+module.exports = router;

@@ -10,8 +10,9 @@ const Bg2 = document.querySelector(".bg-2");
 const Bg3 = document.querySelector(".bg-3");
 
 // User Data Elements
-const usernameElement = document.getElementById("username");
+let usernameElement = document.getElementById("username");
 const profilePicElement = document.getElementById("pfp");
+const friendsTab = document.querySelector(".friends-tab");
 
 // Utility Functions
 const addActiveClass = (element, className = "active") =>
@@ -28,7 +29,7 @@ const toggleNotificationPopup = (item) => {
 
   if (item.id === "notifications") {
     notificationsPopup.style.display = "block";
-    notificationCount.style.display = "none";
+    // notificationCount.style.display = "none";
   } else {
     notificationsPopup.style.display = "none";
   }
@@ -38,7 +39,7 @@ menuItems.forEach((item) => {
   item.addEventListener("click", () => {
     removeActiveClass(menuItems);
     addActiveClass(item);
-    toggleNotificationPopup(item);
+    // toggleNotificationPopup(item);
   });
 });
 
@@ -123,22 +124,155 @@ Bg3.addEventListener("click", () => {
 });
 
 // ============== USER DATA ==============
-const fetchUserData = async () => {
+const fetchUserProfile = async (username) => {
   try {
-    const response = await fetch("/api/profiles/me");
+    const response = await fetch(`/api/profiles/${username}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
 
     const data = await response.json();
-    if (data.username) {
+
+    if (response.ok) {
+      console.log("User profile data:", data);
       usernameElement.textContent = data.username;
-    }
-    if (data.pfp) {
-      profilePicElement.src = data.pfp;
+    } else {
+      // Handle error response
+      console.error("Error fetching user profile:", data.error);
     }
   } catch (error) {
-    const response = await fetch("/api/profiles/me");
-    console.log(await response.json());
-    console.error("Error fetching user data:", error);
+    console.error("Network or server error:", error);
   }
 };
 
-document.addEventListener("DOMContentLoaded", fetchUserData);
+// Select the feeds container and Friends menu item
+const feedsContainer = document.querySelector(".feeds");
+const friendsMenuItem = document.querySelector("#notifications");
+
+// Function to fetch and display friends
+const fetchAndDisplayFriends = async () => {
+  try {
+    // Fetch user data using the hardcoded username "Abc"
+    const response = await fetch("/api/profiles/Abc", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.friends && data.friends.length > 0) {
+      // Clear the feed container before displaying friends
+      feedsContainer.innerHTML = "";
+
+      // Loop through the friends array and create elements for each friend
+      data.friends.forEach((friend) => {
+        // Create a new feed item
+        const feed = document.createElement("div");
+        feed.classList.add("feed");
+
+        // Friend's info container
+        const head = document.createElement("div");
+        head.classList.add("head");
+
+        const user = document.createElement("div");
+        user.classList.add("user");
+
+        const info = document.createElement("div");
+        info.classList.add("info");
+
+        const friendName = document.createElement("h3");
+        friendName.textContent = friend; // Friend's username
+
+        info.appendChild(friendName);
+        user.appendChild(info);
+        head.appendChild(user);
+        feed.appendChild(head);
+
+        // Add the feed item to the feeds container
+        feedsContainer.appendChild(feed);
+      });
+
+      // Add a scrollbar for the feeds container if needed
+      feedsContainer.style.overflowY = "auto";
+      feedsContainer.style.maxHeight = "500px"; // Adjust max-height as needed
+    } else if (data.friends && data.friends.length === 0) {
+      feedsContainer.innerHTML = "<p>No friends to display</p>";
+    } else {
+      console.error("Error fetching friends:", data.error);
+    }
+  } catch (error) {
+    console.error("Network or server error:", error);
+  }
+};
+
+// Add an event listener to the Friends menu item
+friendsMenuItem.addEventListener("click", fetchAndDisplayFriends);
+//explore element
+
+// Select the Explore menu item
+const exploreMenuItem = document.querySelector(".menu-item:nth-child(2)");
+
+// Function to fetch and display all users
+const fetchAndDisplayUsers = async () => {
+  try {
+    // Fetch all users' data from the backend
+    const response = await fetch("/api/profiles/", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.length > 0) {
+      // Clear the feed container before displaying users
+      feedsContainer.innerHTML = "";
+
+      // Loop through all users and create elements for each
+      data.forEach((user) => {
+        // Create a new feed item
+        const feed = document.createElement("div");
+        feed.classList.add("feed");
+
+        // User's info container
+        const head = document.createElement("div");
+        head.classList.add("head");
+
+        const userDiv = document.createElement("div");
+        userDiv.classList.add("user");
+
+        const info = document.createElement("div");
+        info.classList.add("info");
+
+        const userName = document.createElement("h3");
+        userName.textContent = user.username; // User's username
+
+        const userInterests = document.createElement("small");
+        userInterests.textContent = `Interests: ${user.interests.join(", ")}`; // User's interests
+
+        info.appendChild(userName);
+        info.appendChild(userInterests);
+        userDiv.appendChild(info);
+        head.appendChild(userDiv);
+        feed.appendChild(head);
+
+        // Add the feed item to the feeds container
+        feedsContainer.appendChild(feed);
+      });
+
+      // Add a scrollbar for the feeds container if needed
+      feedsContainer.style.overflowY = "auto";
+      feedsContainer.style.maxHeight = "500px"; // Adjust max-height as needed
+    } else if (data.length === 0) {
+      feedsContainer.innerHTML = "<p>No users to display</p>";
+    } else {
+      console.error("Error fetching users:", data.error);
+    }
+  } catch (error) {
+    console.error("Network or server error:", error);
+  }
+};
+
+// Add an event listener to the Explore menu item
+exploreMenuItem.addEventListener("click", fetchAndDisplayUsers);
+
+document.addEventListener("DOMContentLoaded", fetchUserProfile("Abc"));

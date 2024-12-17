@@ -1,0 +1,26 @@
+[
+  {
+    "username": "testuser",
+    "password": "$2b$10$o1oCcL7963kLVG8Zg.ICyOe1j522G/nmfAzfKpRxuauJHrk3qK5ba",
+    "interests": ["reading", "music", "sports"],
+    "friends": []
+  },
+  {
+    "username": "Abc",
+    "password": "$2b$10$o5L4WlFUkWcLGIpBD5npdOvBwQb9OAzJTa4Lnk7EKhwsnI2Tw8c6m",
+    "interests": ["coding", "reading", "eating"],
+    "friends": []
+  },
+  {
+    "username": "testuser1",
+    "password": "$2b$10$o1oCcL7963kLVG8Zg.ICyOe1j522G/nmfAzfKpRxuauJHrk3qK5ba",
+    "interests": ["reading", "music", "sports"],
+    "friends": []
+  },
+  {
+    "username": "Abc1",
+    "password": "$2b$10$o5L4WlFUkWcLGIpBD5npdOvBwQb9OAzJTa4Lnk7EKhwsnI2Tw8c6m",
+    "interests": ["coding", "reading", "eating"],
+    "friends": []
+  }
+]
