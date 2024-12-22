@@ -14,6 +14,7 @@ const readUsersFromFile = () => {
     const data = fs.readFileSync(pathToUsersFile);
     return JSON.parse(data);
   } catch (err) {
+    console.error("Error reading users file:", err);
     return [];
   }
 };
@@ -25,6 +26,7 @@ const writeUsersToFile = (users) => {
     console.error("Error writing to users file:", err);
   }
 };
+
 // Registration Route
 router.post("/register", async (req, res) => {
   const { username, password, name, email, interests } = req.body;
@@ -49,6 +51,8 @@ router.post("/register", async (req, res) => {
 
     users.push(newUser);
     writeUsersToFile(users);
+
+    res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     console.error("Error during registration:", error);
     res.status(500).json({ error: "Server error during registration" });

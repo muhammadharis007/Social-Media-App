@@ -4,7 +4,6 @@ const fs = require("fs");
 const path = require("path");
 
 const pathToUsersFile = path.join(__dirname, "../users.json");
-folder;
 
 // Middleware to check authentication
 const isAuthenticated = (req, res, next) => {
@@ -17,9 +16,10 @@ const isAuthenticated = (req, res, next) => {
 // Helper function to read users from the JSON file
 const readUsersFromFile = () => {
   try {
-    const data = fs.readFileSync(pathToUsersFile);
+    const data = fs.readFileSync(pathToUsersFile, "utf-8");
     return JSON.parse(data);
   } catch (err) {
+    console.error("Error reading users file:", err);
     return [];
   }
 };
@@ -32,6 +32,17 @@ const writeUsersToFile = (users) => {
     console.error("Error writing to users file:", err);
   }
 };
+
+// Endpoint to fetch all users
+router.get("/profiles", (req, res) => {
+  try {
+    const users = readUsersFromFile(); // Read users from the file
+    res.json(users); // Send back the users as JSON
+  } catch (error) {
+    console.error("Error reading users from file:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 // Get current logged-in user details
 router.get("/me", isAuthenticated, (req, res) => {
@@ -69,16 +80,6 @@ router.get("/:username", (req, res) => {
     friends: user.friends,
     interests: user.interests,
   });
-});
-
-router.get("/", (req, res) => {
-  const users = readUsersFromFile();
-
-  if (!users || users.length === 0) {
-    return res.status(404).json({ error: "No users found" });
-  }
-
-  res.json(users);
 });
 
 module.exports = router;

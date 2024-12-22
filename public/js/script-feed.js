@@ -8,6 +8,10 @@ const colorPalette = document.querySelectorAll(".choose-color span");
 const Bg1 = document.querySelector(".bg-1");
 const Bg2 = document.querySelector(".bg-2");
 const Bg3 = document.querySelector(".bg-3");
+const logOut = document.getElementById("log-out-btn");
+
+// Username from local storage
+const username = localStorage.getItem("username");
 
 // User Data Elements
 let usernameElement = document.getElementById("username");
@@ -137,7 +141,6 @@ const fetchUserProfile = async (username) => {
       console.log("User profile data:", data);
       usernameElement.textContent = data.username;
     } else {
-      // Handle error response
       console.error("Error fetching user profile:", data.error);
     }
   } catch (error) {
@@ -147,13 +150,13 @@ const fetchUserProfile = async (username) => {
 
 // Select the feeds container and Friends menu item
 const feedsContainer = document.querySelector(".feeds");
-const friendsMenuItem = document.querySelector("#notifications");
+const friendsMenuItem = document.querySelector("#friends");
+const exploreMenuItem = document.querySelector("#explore");
 
 // Function to fetch and display friends
 const fetchAndDisplayFriends = async () => {
   try {
-    // Fetch user data using the hardcoded username "Abc"
-    const response = await fetch("/api/profiles/Abc", {
+    const response = await fetch(`/api/profiles/${username}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
@@ -161,16 +164,12 @@ const fetchAndDisplayFriends = async () => {
     const data = await response.json();
 
     if (response.ok && data.friends && data.friends.length > 0) {
-      // Clear the feed container before displaying friends
       feedsContainer.innerHTML = "";
 
-      // Loop through the friends array and create elements for each friend
       data.friends.forEach((friend) => {
-        // Create a new feed item
         const feed = document.createElement("div");
         feed.classList.add("feed");
 
-        // Friend's info container
         const head = document.createElement("div");
         head.classList.add("head");
 
@@ -181,20 +180,24 @@ const fetchAndDisplayFriends = async () => {
         info.classList.add("info");
 
         const friendName = document.createElement("h3");
-        friendName.textContent = friend; // Friend's username
+        friendName.textContent = friend;
+
+        const removeButton = document.createElement("button");
+        removeButton.classList.add("btn", "btn-danger");
+        removeButton.textContent = "Remove Friend";
+        removeButton.addEventListener("click", () => removeFriend(friend));
 
         info.appendChild(friendName);
         user.appendChild(info);
         head.appendChild(user);
         feed.appendChild(head);
+        feed.appendChild(removeButton);
 
-        // Add the feed item to the feeds container
         feedsContainer.appendChild(feed);
       });
 
-      // Add a scrollbar for the feeds container if needed
       feedsContainer.style.overflowY = "auto";
-      feedsContainer.style.maxHeight = "500px"; // Adjust max-height as needed
+      feedsContainer.style.maxHeight = "500px";
     } else if (data.friends && data.friends.length === 0) {
       feedsContainer.innerHTML = "<p>No friends to display</p>";
     } else {
@@ -205,35 +208,70 @@ const fetchAndDisplayFriends = async () => {
   }
 };
 
-// Add an event listener to the Friends menu item
-friendsMenuItem.addEventListener("click", fetchAndDisplayFriends);
-//explore element
+// Function to remove a friend
+const removeFriend = async (friendUsername) => {
+  try {
+    const response = await fetch(
+      `/api/profiles/${username}/friends/${friendUsername}`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
 
-// Select the Explore menu item
-const exploreMenuItem = document.querySelector(".menu-item:nth-child(2)");
+    if (response.ok) {
+      fetchAndDisplayFriends();
+    } else {
+      const data = await response.json();
+      console.error("Error removing friend:", data.error);
+    }
+  } catch (error) {
+    console.error("Network or server error:", error);
+  }
+};
 
-// Function to fetch and display all users
+// Function to add a friend
+const addFriend = async (friendUsername) => {
+  try {
+    const response = await fetch(
+      `/api/profiles/${username}/friends/${friendUsername}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    if (response.ok) {
+      fetchAndDisplayUsers();
+    } else {
+      const data = await response.json();
+      console.error("Error adding friend:", data.error);
+    }
+  } catch (error) {
+    console.error("Network or server error:", error);
+  }
+};
+
+// Function to fetch and display users in the explore tab
 const fetchAndDisplayUsers = async () => {
   try {
-    // Fetch all users' data from the backend
-    const response = await fetch("/api/profiles/", {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
+    const response = await fetch("/api/profiles/profiles");
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error fetching users:", errorText);
+      return;
+    }
 
     const data = await response.json();
 
-    if (response.ok && data.length > 0) {
-      // Clear the feed container before displaying users
+    if (data.length > 0) {
       feedsContainer.innerHTML = "";
 
-      // Loop through all users and create elements for each
       data.forEach((user) => {
-        // Create a new feed item
         const feed = document.createElement("div");
         feed.classList.add("feed");
 
-        // User's info container
         const head = document.createElement("div");
         head.classList.add("head");
 
@@ -244,10 +282,24 @@ const fetchAndDisplayUsers = async () => {
         info.classList.add("info");
 
         const userName = document.createElement("h3");
-        userName.textContent = user.username; // User's username
+        userName.textContent = user.username;
 
         const userInterests = document.createElement("small");
-        userInterests.textContent = `Interests: ${user.interests.join(", ")}`; // User's interests
+        userInterests.textContent = `Interests: ${user.interests.join(", ")}`;
+
+        const addButton = document.createElement("button");
+        addButton.classList.add("btn", "btn-primary");
+        addButton.textContent = "Add Friend";
+        addButton.addEventListener("click", () => addFriend(user.username));
+
+        if (user.friends.includes(username)) {
+          addButton.disabled = true;
+          const alreadyFriendIcon = document.createElement("i");
+          alreadyFriendIcon.classList.add("uil", "uil-check-circle");
+          info.appendChild(alreadyFriendIcon);
+        } else {
+          feed.appendChild(addButton);
+        }
 
         info.appendChild(userName);
         info.appendChild(userInterests);
@@ -255,24 +307,46 @@ const fetchAndDisplayUsers = async () => {
         head.appendChild(userDiv);
         feed.appendChild(head);
 
-        // Add the feed item to the feeds container
         feedsContainer.appendChild(feed);
       });
 
-      // Add a scrollbar for the feeds container if needed
       feedsContainer.style.overflowY = "auto";
-      feedsContainer.style.maxHeight = "500px"; // Adjust max-height as needed
+      feedsContainer.style.maxHeight = "500px";
     } else if (data.length === 0) {
       feedsContainer.innerHTML = "<p>No users to display</p>";
-    } else {
-      console.error("Error fetching users:", data.error);
     }
   } catch (error) {
     console.error("Network or server error:", error);
   }
 };
 
-// Add an event listener to the Explore menu item
+logOut.addEventListener("click", async () => {
+  try {
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log(data.message);
+      window.location.href = "/login";
+    } else {
+      console.error("Logout failed:", data.error);
+    }
+  } catch (error) {
+    console.error("Network or server error:", error);
+  }
+});
+
+friendsMenuItem.addEventListener("click", fetchAndDisplayFriends);
 exploreMenuItem.addEventListener("click", fetchAndDisplayUsers);
 
-document.addEventListener("DOMContentLoaded", fetchUserProfile("Abc"));
+document.addEventListener("DOMContentLoaded", () => {
+  if (username) {
+    fetchUserProfile(username);
+  } else {
+    console.error("No username found in local storage.");
+  }
+});

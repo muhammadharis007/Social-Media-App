@@ -13,6 +13,7 @@ const readUsersFromFile = () => {
     const data = fs.readFileSync(pathToUsersFile);
     return JSON.parse(data);
   } catch (err) {
+    console.error("Error reading users file:", err);
     return [];
   }
 };
@@ -119,6 +120,49 @@ router.get("/feed/:userId", (req, res) => {
   posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   res.json(posts);
+});
+
+// Recommend Friends
+router.get("/recommend/:userId", (req, res) => {
+  const { userId } = req.params;
+
+  if (!validateObjectId(userId)) {
+    return res.status(400).json({ error: "Invalid user ID format" });
+  }
+
+  const users = readUsersFromFile();
+  const user = users.find((user) => user.id === userId);
+
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  const recommendations = users
+    .filter(
+      (potentialFriend) =>
+        potentialFriend.id !== userId &&
+        !user.friends.includes(potentialFriend.id)
+    )
+    .map((potentialFriend) => {
+      const commonInterests = potentialFriend.interests.filter((interest) =>
+        user.interests.includes(interest)
+      ).length;
+      const mutualFriends = potentialFriend.friends.filter((friendId) =>
+        user.friends.includes(friendId)
+      ).length;
+      return {
+        ...potentialFriend,
+        commonInterests,
+        mutualFriends,
+      };
+    })
+    .sort(
+      (a, b) =>
+        b.commonInterests - a.commonInterests ||
+        b.mutualFriends - a.mutualFriends
+    );
+
+  res.json(recommendations);
 });
 
 module.exports = router;
