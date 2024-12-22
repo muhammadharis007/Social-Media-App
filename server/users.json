@@ -1,6 +1,5 @@
 [
   {
-    "id": "1",
     "username": "testuser",
     "password": "$2b$10$tdZQDu1w1iDdEYr40yruq.ruUNB5Aqlfx9lt5ooOO78xKuwGrVrIG",
     "email": "amharisharis@gmail.com",
@@ -10,14 +9,10 @@
       "girls",
       "women"
     ],
-    "friends": [
-      "2",
-      "3"
-    ],
+    "friends": [],
     "posts": []
   },
   {
-    "id": "2",
     "username": "user2",
     "password": "$2b$10$6vINaPHz/AqAFqR54c0vs.EOunLOPcjs.mI2s3uhpXN2JrUzb9v1m",
     "interests": [
@@ -30,7 +25,6 @@
     "posts": []
   },
   {
-    "id": "3",
     "username": "user3",
     "password": "$2b$10$IdLBFfgVVqN.lAc074p.z.W6ad6s6u6gwlIlrXq1421tmLlmNHsV6",
     "interests": [
@@ -43,7 +37,6 @@
     "posts": []
   },
   {
-    "id": "4",
     "username": "user4",
     "password": "$2b$10$HuZwyNdlOZZcSO9CTlLZE.Tu.A2SaYvHshQAgctO/lRS.adMHTvk2",
     "interests": [
@@ -54,7 +47,6 @@
     "posts": []
   },
   {
-    "id": "5",
     "username": "user5",
     "password": "$2b$10$nqUvAUV/7l2ci2YAKgU8zOGK10cn7FVAGp8MjjLUjZoWE7jEQAo26",
     "interests": [
@@ -65,7 +57,6 @@
     "posts": []
   },
   {
-    "id": "6",
     "username": "user6",
     "password": "$2b$10$gCD9U06oKckSut6P.5fVJO1n4o.uBeK./myh/AEqciHgog6x0CQB6",
     "interests": [
@@ -76,7 +67,6 @@
     "posts": []
   },
   {
-    "id": "7",
     "username": "user7",
     "password": "$2b$10$qJDMpQGXOHAsgLQdhGXS8eVVKVNkUQxqfajkzLl/ef4BV1AopuVNq",
     "interests": [
@@ -87,7 +77,6 @@
     "posts": []
   },
   {
-    "id": "8",
     "username": "user8",
     "password": "$2b$10$WF4R.nDU8dJnySb2tzYVc.aOOSmkksFjuogNTz058esuFqESLEKAG",
     "interests": [
@@ -98,7 +87,6 @@
     "posts": []
   },
   {
-    "id": "9",
     "username": "user9",
     "password": "$2b$10$DTuL0VXfJO4GiVua/X3dluabjtnQpucP13MfmjOp4l6oU3o3ZYaI2",
     "interests": [
@@ -109,7 +97,6 @@
     "posts": []
   },
   {
-    "id": "10",
     "username": "user10",
     "password": "$2b$10$pMmhllabdtulhXC5X1wRk.ND5rhC9Q3k7olCwWTtV72vY3XL2vLjK",
     "interests": [
@@ -122,7 +109,6 @@
   {
     "username": "helloworld",
     "password": "$2b$10$gT.bUX6dKyqVm7NVaYBUEOtinEoKaoK8B/WguLaa8CPJb0DaXr31C",
-    "name": "hello",
     "email": "hello@gmail.com",
     "interests": [
       "coding",
@@ -130,5 +116,27 @@
       "music"
     ],
     "friends": []
+  },
+  {
+    "username": "testuser3",
+    "password": "$2b$10$tgVtAeCNYvz8ZTxVaawWI.zXybaSAWIUJ3OL13LyS3tpFWzK7HyoW",
+    "email": "tester@gmail.com",
+    "interests": [
+      "coding",
+      "reading",
+      "music"
+    ],
+    "friends": []
+  },
+  {
+    "username": "yoyo",
+    "password": "$2b$10$drRsyieqhMdy3kXBi91Ayu924ys/1qvWlbARlTNR39fZJnEhS2BPu",
+    "interests": [
+      "coding",
+      "reading",
+      "music"
+    ],
+    "friends": [],
+    "posts": []
   }
 ]

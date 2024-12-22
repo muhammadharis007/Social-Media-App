@@ -29,7 +29,7 @@ const writeUsersToFile = (users) => {
 
 // Registration Route
 router.post("/register", async (req, res) => {
-  const { username, password, name, email, interests } = req.body;
+  const { username, password, interests } = req.body;
 
   try {
     const users = readUsersFromFile();
@@ -43,10 +43,9 @@ router.post("/register", async (req, res) => {
     const newUser = {
       username,
       password: hashedPassword,
-      name,
-      email,
       interests,
       friends: [],
+      posts: [],
     };
 
     users.push(newUser);

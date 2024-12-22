@@ -50,12 +50,6 @@ document.getElementById("authForm").addEventListener("submit", async (e) => {
 
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
-  const name = isRegisterMode
-    ? document.getElementById("name").value.trim()
-    : "";
-  const email = isRegisterMode
-    ? document.getElementById("email").value.trim()
-    : "";
   const interests = isRegisterMode
     ? Array.from(document.querySelectorAll(".interest__item.selected")).map(
         (el) => el.getAttribute("data-interest")
@@ -75,7 +69,7 @@ document.getElementById("authForm").addEventListener("submit", async (e) => {
   try {
     const endpoint = isRegisterMode ? "/api/auth/register" : "/api/auth/login";
     const body = isRegisterMode
-      ? { username, password, name, email, interests }
+      ? { username, password, interests }
       : { username, password };
 
     const response = await fetch(endpoint, {

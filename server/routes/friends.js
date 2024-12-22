@@ -26,31 +26,24 @@ const writeUsersToFile = (users) => {
   }
 };
 
-// Helper function to validate ObjectIds
-const validateObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id);
-
 // Add Friend
 router.post("/add", (req, res) => {
-  const { userId, friendId } = req.body;
-
-  if (!validateObjectId(userId) || !validateObjectId(friendId)) {
-    return res.status(400).json({ error: "Invalid user ID format" });
-  }
+  const { username, friendUsername } = req.body;
 
   const users = readUsersFromFile();
-  const user = users.find((user) => user.id === userId);
-  const friend = users.find((user) => user.id === friendId);
+  const user = users.find((user) => user.username === username);
+  const friend = users.find((user) => user.username === friendUsername);
 
   if (!user || !friend) {
     return res.status(404).json({ error: "User or friend not found" });
   }
 
   // Check if they are already friends
-  if (!user.friends.includes(friendId)) {
-    user.friends.push(friendId);
+  if (!user.friends.includes(friendUsername)) {
+    user.friends.push(friendUsername);
   }
-  if (!friend.friends.includes(userId)) {
-    friend.friends.push(userId);
+  if (!friend.friends.includes(username)) {
+    friend.friends.push(username);
   }
 
   writeUsersToFile(users);
@@ -60,23 +53,19 @@ router.post("/add", (req, res) => {
 
 // Remove Friend
 router.post("/remove", (req, res) => {
-  const { userId, friendId } = req.body;
-
-  if (!validateObjectId(userId) || !validateObjectId(friendId)) {
-    return res.status(400).json({ error: "Invalid user ID format" });
-  }
+  const { username, friendUsername } = req.body;
 
   const users = readUsersFromFile();
-  const user = users.find((user) => user.id === userId);
-  const friend = users.find((user) => user.id === friendId);
+  const user = users.find((user) => user.username === username);
+  const friend = users.find((user) => user.username === friendUsername);
 
   if (!user || !friend) {
     return res.status(404).json({ error: "User or friend not found" });
   }
 
   // Remove the friends
-  user.friends = user.friends.filter((id) => id !== friendId);
-  friend.friends = friend.friends.filter((id) => id !== userId);
+  user.friends = user.friends.filter((uname) => uname !== friendUsername);
+  friend.friends = friend.friends.filter((uname) => uname !== username);
 
   writeUsersToFile(users);
 
@@ -84,15 +73,11 @@ router.post("/remove", (req, res) => {
 });
 
 // Fetch User's Feed
-router.get("/feed/:userId", (req, res) => {
-  const { userId } = req.params;
-
-  if (!validateObjectId(userId)) {
-    return res.status(400).json({ error: "Invalid user ID format" });
-  }
+router.get("/feed/:username", (req, res) => {
+  const { username } = req.params;
 
   const users = readUsersFromFile();
-  const user = users.find((user) => user.id === userId);
+  const user = users.find((user) => user.username === username);
 
   if (!user) {
     return res.status(404).json({ error: "User not found" });
@@ -104,8 +89,8 @@ router.get("/feed/:userId", (req, res) => {
       ...post,
       author: user.username,
     })),
-    ...user.friends.flatMap((friendId) => {
-      const friend = users.find((user) => user.id === friendId);
+    ...user.friends.flatMap((friendUsername) => {
+      const friend = users.find((user) => user.username === friendUsername);
       return friend
         ? friend.posts.map((post) => ({
             ...post,

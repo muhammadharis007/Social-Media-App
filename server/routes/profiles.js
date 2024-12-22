@@ -55,7 +55,6 @@ router.get("/me", isAuthenticated, (req, res) => {
 
   res.json({
     username: user.username,
-    name: user.name,
     profileImage: user.profileImage,
     friends: user.friends,
     interests: user.interests,
@@ -80,6 +79,29 @@ router.get("/:username", (req, res) => {
     friends: user.friends,
     interests: user.interests,
   });
+});
+
+// Endpoint to fetch friend recommendations
+router.get("/recommend/:username", (req, res) => {
+  const { username } = req.params;
+  const users = readUsersFromFile();
+  const user = users.find((user) => user.username === username);
+
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  // Find users who are not friends yet
+  const recommendations = users
+    .filter(
+      (u) => u.username !== username && !user.friends.includes(u.username)
+    )
+    .map((u) => ({
+      username: u.username,
+      mutualFriends: u.friends.filter((f) => user.friends.includes(f)).length,
+    }));
+
+  res.json(recommendations);
 });
 
 module.exports = router;

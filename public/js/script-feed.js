@@ -211,13 +211,11 @@ const fetchAndDisplayFriends = async () => {
 // Function to remove a friend
 const removeFriend = async (friendUsername) => {
   try {
-    const response = await fetch(
-      `/api/profiles/${username}/friends/${friendUsername}`,
-      {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    const response = await fetch(`/api/friends/remove`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, friendUsername }),
+    });
 
     if (response.ok) {
       fetchAndDisplayFriends();
@@ -230,18 +228,19 @@ const removeFriend = async (friendUsername) => {
   }
 };
 
+// ...existing code...
+
 // Function to add a friend
 const addFriend = async (friendUsername) => {
   try {
-    const response = await fetch(
-      `/api/profiles/${username}/friends/${friendUsername}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    const response = await fetch(`/api/friends/add`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, friendUsername }),
+    });
 
     if (response.ok) {
+      alert("Friend added successfully!");
       fetchAndDisplayUsers();
     } else {
       const data = await response.json();
@@ -290,7 +289,7 @@ const fetchAndDisplayUsers = async () => {
         const addButton = document.createElement("button");
         addButton.classList.add("btn", "btn-primary");
         addButton.textContent = "Add Friend";
-        addButton.addEventListener("click", () => addFriend(user.username));
+        addButton.dataset.username = user.username;
 
         if (user.friends.includes(username)) {
           addButton.disabled = true;
@@ -314,6 +313,68 @@ const fetchAndDisplayUsers = async () => {
       feedsContainer.style.maxHeight = "500px";
     } else if (data.length === 0) {
       feedsContainer.innerHTML = "<p>No users to display</p>";
+    }
+  } catch (error) {
+    console.error("Network or server error:", error);
+  }
+};
+
+// Event delegation for dynamically added buttons
+feedsContainer.addEventListener("click", (event) => {
+  if (event.target.classList.contains("btn-primary")) {
+    const friendUsername = event.target.dataset.username;
+    addFriend(friendUsername);
+  }
+});
+
+// Function to fetch and display friend recommendations
+const fetchAndDisplayRecommendations = async () => {
+  try {
+    const response = await fetch(`/api/profiles/recommend/${username}`);
+    const data = await response.json();
+
+    if (response.ok) {
+      const recommendationsContainer = document.getElementById(
+        "recommendations-container"
+      );
+      recommendationsContainer.innerHTML = "";
+
+      data.slice(0, 4).forEach((recommendation) => {
+        const requestDiv = document.createElement("div");
+        requestDiv.classList.add("request");
+
+        const infoDiv = document.createElement("div");
+        infoDiv.classList.add("info");
+
+        const nameDiv = document.createElement("div");
+        const nameH5 = document.createElement("h5");
+        nameH5.textContent = recommendation.username;
+        const mutualFriendsP = document.createElement("p");
+        mutualFriendsP.classList.add("text-muted");
+        mutualFriendsP.textContent = `${recommendation.mutualFriends} mutual friends`;
+
+        nameDiv.appendChild(nameH5);
+        nameDiv.appendChild(mutualFriendsP);
+        infoDiv.appendChild(nameDiv);
+
+        const actionDiv = document.createElement("div");
+        actionDiv.classList.add("action");
+        const acceptButton = document.createElement("button");
+        acceptButton.classList.add("btn", "btn-primary");
+        acceptButton.textContent = "Add";
+        acceptButton.addEventListener("click", () =>
+          addFriend(recommendation.username)
+        );
+
+        actionDiv.appendChild(acceptButton);
+
+        requestDiv.appendChild(infoDiv);
+        requestDiv.appendChild(actionDiv);
+
+        recommendationsContainer.appendChild(requestDiv);
+      });
+    } else {
+      console.error("Error fetching recommendations:", data.error);
     }
   } catch (error) {
     console.error("Network or server error:", error);
@@ -346,6 +407,7 @@ exploreMenuItem.addEventListener("click", fetchAndDisplayUsers);
 document.addEventListener("DOMContentLoaded", () => {
   if (username) {
     fetchUserProfile(username);
+    fetchAndDisplayRecommendations();
   } else {
     console.error("No username found in local storage.");
   }
