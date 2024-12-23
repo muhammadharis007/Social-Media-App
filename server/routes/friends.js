@@ -3,59 +3,85 @@ const fs = require("fs");
 const path = require("path");
 
 const router = express.Router();
+const usersFilePath = path.join(__dirname, "../users.json");
 
-// Path to users.json (assuming it's in the root directory)
-const pathToUsersFile = path.join(__dirname, "../users.json");
-
-// Helper function to read users from the JSON file
-const readUsersFromFile = () => {
+// Helper function to read users
+const readUsers = () => {
   try {
-    const data = fs.readFileSync(pathToUsersFile);
-    return JSON.parse(data);
-  } catch (err) {
-    return [];
+    return JSON.parse(fs.readFileSync(usersFilePath, "utf8"));
+  } catch (error) {
+    console.error("Error reading users file:", error);
+    return null;
   }
 };
 
-// Helper function to write users to the JSON file
-const writeUsersToFile = (users) => {
+// Helper function to write users
+const writeUsers = (users) => {
   try {
-    fs.writeFileSync(pathToUsersFile, JSON.stringify(users, null, 2));
-  } catch (err) {
-    console.error("Error writing to users file:", err);
+    fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+    return true;
+  } catch (error) {
+    console.error("Error writing users file:", error);
+    return false;
   }
 };
 
-// Add Friend
-router.post("/add", (req, res) => {
-  const { username, friendUsername } = req.body;
+// Add friend route
+router.post("/add", async (req, res) => {
+  try {
+    const { username, friendUsername } = req.body;
 
-  const users = readUsersFromFile();
-  const user = users.find((user) => user.username === username);
-  const friend = users.find((user) => user.username === friendUsername);
+    if (!username || !friendUsername) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
 
-  if (!user || !friend) {
-    return res.status(404).json({ error: "User or friend not found" });
-  }
+    const users = readUsers();
+    if (!users) {
+      return res.status(500).json({ error: "Error reading users data" });
+    }
 
-  // Check if they are already friends
-  if (!user.friends.includes(friendUsername)) {
+    const user = users.find((u) => u.username === username);
+    const friend = users.find((u) => u.username === friendUsername);
+
+    if (!user || !friend) {
+      return res.status(404).json({ error: "User or friend not found" });
+    }
+
+    if (username === friendUsername) {
+      return res.status(400).json({ error: "Cannot add yourself as friend" });
+    }
+
+    // Initialize friends arrays if they don't exist
+    if (!user.friends) user.friends = [];
+    if (!friend.friends) friend.friends = [];
+
+    // Check if already friends
+    if (user.friends.includes(friendUsername)) {
+      return res.status(400).json({ error: "Already friends" });
+    }
+
+    // Add each other as friends
     user.friends.push(friendUsername);
-  }
-  if (!friend.friends.includes(username)) {
     friend.friends.push(username);
+
+    if (!writeUsers(users)) {
+      return res
+        .status(500)
+        .json({ error: "Error saving friend relationship" });
+    }
+
+    res.json({ message: "Friend added successfully" });
+  } catch (error) {
+    console.error("Server error in add friend:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
-
-  writeUsersToFile(users);
-
-  res.json({ message: "Friend added successfully" });
 });
 
 // Remove Friend
 router.post("/remove", (req, res) => {
   const { username, friendUsername } = req.body;
 
-  const users = readUsersFromFile();
+  const users = readUsers();
   const user = users.find((user) => user.username === username);
   const friend = users.find((user) => user.username === friendUsername);
 
@@ -67,7 +93,7 @@ router.post("/remove", (req, res) => {
   user.friends = user.friends.filter((uname) => uname !== friendUsername);
   friend.friends = friend.friends.filter((uname) => uname !== username);
 
-  writeUsersToFile(users);
+  writeUsers(users);
 
   res.json({ message: "Friend removed successfully" });
 });
@@ -76,7 +102,7 @@ router.post("/remove", (req, res) => {
 router.get("/feed/:username", (req, res) => {
   const { username } = req.params;
 
-  const users = readUsersFromFile();
+  const users = readUsers();
   const user = users.find((user) => user.username === username);
 
   if (!user) {

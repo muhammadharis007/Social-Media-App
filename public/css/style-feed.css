@@ -373,6 +373,13 @@ main .container .left .profile {
   margin: 1rem 0;
   font-size: 0.85rem;
   line-height: 1.5;
+  transition: all 300ms ease;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.middle .feeds .feed:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
 }
 
 .middle .feed .head {
@@ -424,6 +431,119 @@ main .container .left .profile {
 .caption {
   font-size: 1rem;
   padding-top: 0.3rem;
+}
+
+/* Enhanced Post Styling */
+.post-content {
+  padding: 1rem 0;
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--color-dark);
+}
+
+.post-content p {
+  margin-bottom: 0.5rem;
+}
+
+.action-buttons {
+  border-top: 1px solid var(--color-light);
+  padding-top: 0.8rem;
+  margin-top: 0.8rem;
+}
+
+.interaction-buttons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.like-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--color-dark);
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  transition: all 300ms ease;
+}
+
+.like-button:hover {
+  background: var(--color-light);
+  transform: scale(1.05);
+}
+
+.like-button.liked {
+  color: var(--color-danger);
+  background: var(--color-light);
+}
+
+.like-button i {
+  font-size: 1.4rem;
+  transition: transform 300ms ease;
+}
+
+.like-button:hover i {
+  transform: scale(1.2);
+}
+
+.liked-by {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.like-count {
+  font-size: 0.95rem;
+  color: var(--color-dark);
+  font-weight: 500;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.post-time {
+  font-size: 0.8rem;
+  color: var(--color-grey);
+}
+
+.post-user {
+  font-weight: 600;
+  color: var(--color-dark);
+  margin-bottom: 0.3rem;
+}
+
+/* =============== Similarity Score ============== */
+.similarity-score {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: var(--color-light);
+  border-radius: 2px;
+  margin: 2rem 0 0.5rem 0; /* Increased top margin */
+}
+
+.score-bar {
+  position: absolute;
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.similarity-score span {
+  position: absolute;
+  right: 0;
+  top: -1.8rem; /* Adjusted position */
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  font-weight: 500;
 }
 
 /* =============== Right ============== */
@@ -529,17 +649,34 @@ main .container .right {
   padding: var(--card-padding);
   border-radius: var(--card-border-radius);
   margin-bottom: 0.7rem;
+  transition: all 300ms ease;
+}
+
+.right .request:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
 }
 
 .right .request .info {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.right .request .info h5 {
+  color: var(--color-dark);
+  font-size: 1rem;
+}
+
+.right .request .info .text-muted {
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
 }
 
 .right .request .action {
   display: flex;
   gap: 1rem;
+  margin-top: 0.5rem;
 }
 
 /* =============== Theme Customization ============== */
@@ -778,3 +915,394 @@ MEDIA QUERIES FOR SMALL TABLETS AND MOBILE PHONES
     width: 80vw;
   }
 }
+
+.like-button {
+  background: none;
+  border: none;
+  color: var(--color-dark);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.5rem;
+}
+
+.like-button.liked {
+  color: red;
+}
+
+.like-button:hover {
+  opacity: 0.8;
+}
+
+.like-count {
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+}
+.post-content {
+  font-size: 1.5rem;
+  font-style: bold;
+}
+
+/* Profile Popup Styles */
+.profile-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  background: var(--color-white);
+  padding: 2rem;
+  border-radius: var(--card-border-radius);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  width: 400px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.profile-popup.active {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  visibility: visible;
+}
+
+.profile-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.profile-popup-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sequence-progress {
+  margin: 1.5rem 0;
+}
+
+.sequence-progress .title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.sequence-progress .bar {
+  height: 30px;
+  background: var(--color-light);
+  border-radius: 15px;
+  overflow: hidden;
+  position: relative;
+}
+
+.sequence-progress .progress {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 15px;
+  transition: width 1s ease;
+  position: relative;
+}
+
+.sequence-icon {
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.user-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1rem;
+  background: var(--color-light);
+  border-radius: var(--card-border-radius);
+}
+
+.stat-item h4 {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+}
+
+.stat-item p {
+  font-size: 0.8rem;
+  color: var(--color-dark);
+}
+
+.close-popup {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: var(--color-dark);
+}
+
+/* Enhanced Sequence Progress Bar */
+.sequence-progress {
+  margin: 2rem 0;
+  height: 120px; /* Fixed height to prevent vertical scroll */
+  overflow: hidden; /* Hide vertical overflow */
+}
+
+.sequence-bar-container {
+  position: relative;
+  width: 100%;
+  height: 100px; /* Adjusted height */
+  overflow-x: auto;
+  overflow-y: hidden; /* Hide vertical scroll */
+  padding: 0 20px;
+  margin: 10px 0;
+}
+
+.sequence-bar-wrapper {
+  position: relative;
+  min-width: 600px;
+  height: 100%;
+  padding: 20px 0; /* Add padding to center content vertically */
+}
+
+.sequence-bar {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: var(--color-light);
+  border-radius: 4px;
+  margin-top: 15px; /* Adjusted margin */
+}
+
+.sequence-progress-fill {
+  position: absolute;
+  left: 0;
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 4px;
+  transition: width 1s ease;
+}
+
+.sequence-checkpoints {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px; /* Add padding to align with bar */
+}
+
+.checkpoint {
+  position: relative;
+  width: 24px; /* Slightly smaller icons */
+  height: 24px;
+  margin-top: -8px; /* Adjust position relative to bar */
+  z-index: 2;
+}
+
+.checkpoint-icon {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--color-white);
+  border: 3px solid var(--color-light);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.checkpoint-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.checkpoint.reached .checkpoint-icon {
+  border-color: var(--color-primary);
+  transform: scale(1.2);
+}
+
+.checkpoint-label {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.75rem;
+  color: var(--color-grey);
+  transition: all 0.3s ease;
+}
+
+.checkpoint.reached .checkpoint-label {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.checkpoint-popup {
+  position: absolute;
+  bottom: 45px;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  background: var(--color-white);
+  padding: 0.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 3;
+  width: 120px;
+  text-align: center;
+}
+
+.checkpoint:hover .checkpoint-popup {
+  transform: translateX(-50%) scale(1);
+  opacity: 1;
+  visibility: visible;
+}
+
+.scroll-hint {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  color: var(--color-primary);
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.scroll-hint:hover {
+  opacity: 1;
+}
+
+.scroll-left {
+  left: 0;
+}
+
+.scroll-right {
+  right: 0;
+}
+
+/* Sequence Icon Tooltip */
+.sequence-tooltip {
+  position: absolute;
+  bottom: 45px;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  background: var(--color-white);
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  width: 200px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.checkpoint:hover .sequence-tooltip {
+  transform: translateX(-50%) scale(1);
+  opacity: 1;
+  visibility: visible;
+}
+
+.sequence-tooltip .tooltip-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 0.5rem;
+  border-radius: 50%;
+  border: 3px solid var(--color-primary);
+  padding: 2px;
+  background: var(--color-white);
+}
+
+.sequence-tooltip .tooltip-icon img {
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sequence-tooltip h4 {
+  color: var(--color-dark);
+  font-size: 1.2rem;
+  margin-bottom: 0.2rem;
+  background: linear-gradient(135deg, var(--color-primary), #6c63ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.sequence-tooltip .sequence-number {
+  font-size: 0.9rem;
+  color: var(--color-grey);
+  margin-bottom: 0.5rem;
+}
+
+.sequence-tooltip .tooltip-text {
+  font-size: 0.85rem;
+  color: var(--color-dark);
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* ...existing code... */
+
+.sidebar .menu-item {
+  display: flex;
+  align-items: center;
+  height: 4rem;
+  cursor: pointer;
+  transition: all 300ms ease;
+  position: relative;
+  padding: 0 1rem;
+}
+
+.sidebar .menu-item span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  width: 2rem;
+  margin-right: 1rem;
+}
+
+.sidebar .menu-item i {
+  color: var(--dark-color);
+  font-size: 1.4rem;
+  transition: all 300ms ease;
+}
+
+.sidebar .menu-item.active i,
+.sidebar .menu-item.active h3 {
+  color: var(--primary-color);
+}
+
+.sidebar .menu-item:hover {
+  background: var(--light-color);
+  border-radius: 0.5rem;
+}
+
+.sidebar .menu-item:hover i,
+.sidebar .menu-item:hover h3 {
+  color: var(--primary-color);
+}
+
+/* ...existing code... */

@@ -9,8 +9,18 @@
       "girls",
       "women"
     ],
-    "friends": [],
-    "posts": []
+    "friends": [
+      "yoyo",
+      "yo"
+    ],
+    "posts": [
+      {
+        "id": "1734905071797",
+        "text": "123",
+        "time": "2024-12-22T22:04:31.797Z",
+        "likes": 0
+      }
+    ]
   },
   {
     "username": "user2",
@@ -20,7 +30,8 @@
       "movies"
     ],
     "friends": [
-      "1"
+      "1",
+      "yoyo"
     ],
     "posts": []
   },
@@ -83,7 +94,9 @@
       "cooking",
       "music"
     ],
-    "friends": [],
+    "friends": [
+      "yoyo"
+    ],
     "posts": []
   },
   {
@@ -93,7 +106,9 @@
       "reading",
       "gaming"
     ],
-    "friends": [],
+    "friends": [
+      "yoyo"
+    ],
     "posts": []
   },
   {
@@ -115,7 +130,9 @@
       "reading",
       "music"
     ],
-    "friends": []
+    "friends": [
+      "yoyo"
+    ]
   },
   {
     "username": "testuser3",
@@ -126,7 +143,9 @@
       "reading",
       "music"
     ],
-    "friends": []
+    "friends": [
+      "yoyo"
+    ]
   },
   {
     "username": "yoyo",
@@ -136,7 +155,60 @@
       "reading",
       "music"
     ],
-    "friends": [],
+    "friends": [
+      "testuser",
+      "user8",
+      "user9",
+      "helloworld",
+      "testuser3",
+      "user2",
+      "yo"
+    ],
+    "posts": [
+      {
+        "id": "1734903335001",
+        "text": "hi",
+        "time": "2024-12-22T21:35:35.001Z",
+        "likes": 18
+      },
+      {
+        "id": "1734904669530",
+        "text": "i am stupid",
+        "time": "2024-12-22T21:57:49.530Z",
+        "likes": 0
+      },
+      {
+        "id": "1734904827498",
+        "text": "hell yeah",
+        "time": "2024-12-22T22:00:27.498Z",
+        "likes": 0
+      },
+      {
+        "id": "1734905087281",
+        "text": "123",
+        "time": "2024-12-22T22:04:47.281Z",
+        "likes": 0
+      },
+      {
+        "id": "1734914166962",
+        "text": "hello",
+        "time": "2024-12-23T00:36:06.962Z",
+        "likes": 1
+      }
+    ]
+  },
+  {
+    "username": "yo",
+    "password": "$2b$10$ae/P.skOylme4fQAjx7ZCugCrL5Ka0RudAFirxXtLkRgHU4BVSo5i",
+    "interests": [
+      "cp",
+      "girls",
+      "women"
+    ],
+    "friends": [
+      "testuser",
+      "yoyo"
+    ],
     "posts": []
   }
 ]

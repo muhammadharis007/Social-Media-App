@@ -1,0 +1,40 @@
+{
+  "yoyo": {
+    "players": [
+      "yoyo"
+    ],
+    "status": "waiting",
+    "story": [],
+    "currentPlayer": 0,
+    "iteration": 0,
+    "scores": {},
+    "timeCreated": 1734910713909
+  },
+  "yo": {
+    "players": [
+      "yo",
+      "testuser"
+    ],
+    "status": "waiting",
+    "story": [],
+    "currentPlayer": 0,
+    "iteration": 0,
+    "scores": {
+      "testuser": 0,
+      "yoyo": 0
+    },
+    "timeCreated": 1734911444640,
+    "lastActivity": 1734911702738,
+    "playerOrder": [
+      "yo",
+      "testuser",
+      "yoyo"
+    ],
+    "submissions": {},
+    "votes": {},
+    "currentRound": {
+      "phase": "waiting",
+      "deadline": null
+    }
+  }
+}

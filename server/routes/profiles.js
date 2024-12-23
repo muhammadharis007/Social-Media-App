@@ -33,6 +33,44 @@ const writeUsersToFile = (users) => {
   }
 };
 
+// Helper function to calculate similarity score
+const calculateSimilarityScore = (user, otherUser) => {
+  // Calculate mutual friends score (30% weight)
+  const mutualFriends = otherUser.friends.filter((friend) =>
+    user.friends.includes(friend)
+  ).length;
+  const maxPossibleMutualFriends = Math.min(
+    user.friends.length,
+    otherUser.friends.length
+  );
+  const mutualFriendsScore =
+    maxPossibleMutualFriends > 0
+      ? (mutualFriends / maxPossibleMutualFriends) * 30
+      : 0;
+
+  // Calculate interests similarity score (70% weight)
+  const commonInterests = otherUser.interests.filter((interest) =>
+    user.interests.includes(interest)
+  ).length;
+  const maxPossibleInterests = Math.min(
+    user.interests.length,
+    otherUser.interests.length
+  );
+  const interestsScore =
+    maxPossibleInterests > 0
+      ? (commonInterests / maxPossibleInterests) * 70
+      : 0;
+
+  // Combined score
+  const totalScore = mutualFriendsScore + interestsScore;
+
+  return {
+    score: Math.round(totalScore * 100) / 100,
+    mutualFriends,
+    commonInterests,
+  };
+};
+
 // Endpoint to fetch all users
 router.get("/profiles", (req, res) => {
   try {
@@ -81,25 +119,59 @@ router.get("/:username", (req, res) => {
   });
 });
 
-// Endpoint to fetch friend recommendations
-router.get("/recommend/:username", (req, res) => {
+// Get friends of friends for sidebar
+router.get("/friends-of-friends/:username", (req, res) => {
   const { username } = req.params;
   const users = readUsersFromFile();
-  const user = users.find((user) => user.username === username);
+  const user = users.find((u) => u.username === username);
 
   if (!user) {
     return res.status(404).json({ error: "User not found" });
   }
 
-  // Find users who are not friends yet
+  // Get friends of friends
+  const friendsOfFriends = users
+    .filter(
+      (otherUser) =>
+        // Not the user themselves and not already a friend
+        otherUser.username !== username &&
+        !user.friends.includes(otherUser.username) &&
+        // Has mutual friends
+        otherUser.friends.some((friend) => user.friends.includes(friend))
+    )
+    .map((potentialFriend) => ({
+      username: potentialFriend.username,
+      mutualFriends: potentialFriend.friends.filter((friend) =>
+        user.friends.includes(friend)
+      ).length,
+    }))
+    .sort((a, b) => b.mutualFriends - a.mutualFriends)
+    .slice(0, 4); // Top 4 with most mutual friends
+
+  res.json(friendsOfFriends);
+});
+
+// Get full recommendations based on combined score
+router.get("/recommend/:username", (req, res) => {
+  const { username } = req.params;
+  const users = readUsersFromFile();
+  const user = users.find((u) => u.username === username);
+
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
   const recommendations = users
     .filter(
-      (u) => u.username !== username && !user.friends.includes(u.username)
+      (potentialMatch) =>
+        potentialMatch.username !== username &&
+        !user.friends.includes(potentialMatch.username)
     )
-    .map((u) => ({
-      username: u.username,
-      mutualFriends: u.friends.filter((f) => user.friends.includes(f)).length,
-    }));
+    .map((potentialMatch) => ({
+      username: potentialMatch.username,
+      ...calculateSimilarityScore(user, potentialMatch),
+    }))
+    .sort((a, b) => b.score - a.score);
 
   res.json(recommendations);
 });

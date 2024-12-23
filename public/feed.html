@@ -48,15 +48,15 @@
           <!----------------- SIDEBAR -------------------->
           <div class="sidebar">
             <a class="menu-item active">
-              <span><i class="uil uil-home"></i></span>
+              <span><i class="uil uil-home-alt"></i></span>
               <h3>Home</h3>
             </a>
             <a class="menu-item" id="explore">
-              <span><i class="uil uil-compass"></i></span>
+              <span><i class="uil uil-search-alt"></i></span>
               <h3>Explore</h3>
             </a>
             <a class="menu-item" id="friends">
-              <span><i class="uil uil-bell"></i></span>
+              <span><i class="uil uil-users-alt"></i></span>
               <h3>Friends</h3>
               <!--------------- NOTIFICATION POPUP --------------->
               <div class="notifications-popup">
@@ -71,23 +71,23 @@
             </a>
             <a class="menu-item" id="games">
               <span
-                ><i class="uil uil-envelope-alt"
+                ><i class="uil uil-dice-six"
                   ><small class="notification-count">6</small></i
                 ></span
               >
               <h3>Games</h3>
             </a>
-            <a class="menu-item">
-              <span><i class="uil uil-chart-line"></i></span>
+            <a class="menu-item" id="recommended">
+              <span><i class="uil uil-assistive-listening-systems"></i></span>
               <h3>Recommended</h3>
             </a>
             <a class="menu-item" id="theme">
-              <span><i class="uil uil-palette"></i></span>
+              <span><i class="uil uil-swatchbook"></i></span>
               <h3>Theme</h3>
             </a>
             <a class="menu-item">
               <span><i class="uil uil-setting"></i></span>
-              <h3>Setting</h3>
+              <h3>Settings</h3>
             </a>
           </div>
           <!----------------- END OF SIDEBAR -------------------->
@@ -99,10 +99,9 @@
           <!----------------- STORIES -------------------->
           <!----------------- END OF STORIES -------------------->
           <form action="" class="create-post">
-
             <input
               type="text"
-              placeholder="What's on your mind, Diana ?"
+              placeholder="What's on your mind?"
               id="create-post"
             />
             <input type="submit" value="Post" class="btn btn-primary" />
@@ -131,16 +130,12 @@
               <div class="action-buttons">
                 <div class="interaction-buttons">
                   <span><i class="uil uil-heart"></i></span>
-                  <span><i class="uil uil-comment-dots"></i></span>
-                </div>
-                <div class="bookmark">
-                  <span><i class="uil uil-bookmark-full"></i></span>
                 </div>
               </div>
 
               <div class="liked-by">
+              <p>120 likes</p>
 
-                <p>Liked by <b>Ernest Achiever</b> and <b>2, 323 others</b></p>
               </div>
 
             </div>
@@ -154,7 +149,7 @@
         <div class="right">
           <!------- FRIEND Recommendation ------->
           <div class="friend-recommendation">
-            <h4>You might also know</h4>
+            <h4></h4>
             <div id="recommendations-container">
               <!-- Recommendations will be dynamically inserted here -->
             </div>

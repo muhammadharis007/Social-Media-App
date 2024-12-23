@@ -43,9 +43,15 @@ const writeUsersToFile = (users) => {
 // Routes
 const authRoutes = require("./routes/auth");
 const profileRoutes = require("./routes/profiles");
+const postsRoutes = require("./routes/posts");
+const friendsRoutes = require("./routes/friends"); // Add this line
+const gamesRoutes = require("./routes/games"); // Add this line
 
 app.use("/api/auth", authRoutes);
 app.use("/api/profiles", profileRoutes);
+app.use("/api/posts", postsRoutes);
+app.use("/api/friends", friendsRoutes); // Add this line
+app.use("/api/games", gamesRoutes); // Add this line
 
 // Serve feed.html with basic authentication check
 app.get("/feed.html", (req, res) => {
@@ -65,6 +71,12 @@ app.get("*", (req, res) => {
 
 // Start Server
 const PORT = process.env.PORT || 3002;
-app.listen(PORT, () => {
+
+const server = require("http").createServer(app);
+const GameWebSocket = require("./websocket");
+const gameWs = new GameWebSocket(server);
+
+// Update the server start
+server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });

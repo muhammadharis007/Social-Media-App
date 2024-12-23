@@ -1,0 +1,33 @@
+{
+  "games": {
+    "testuser": {
+      "players": [
+        "testuser",
+        "yoyo"
+      ],
+      "status": "waiting",
+      "story": [],
+      "currentPlayer": 0,
+      "iteration": 0,
+      "scores": {
+        "testuser": 0,
+        "yoyo": 0
+      },
+      "timeCreated": 1734912854446,
+      "lastActivity": 1734912941682,
+      "playerOrder": [
+        "yo",
+        "testuser",
+        "yoyo"
+      ],
+      "submissions": {},
+      "votes": {},
+      "currentRound": {
+        "phase": "waiting",
+        "deadline": null
+      },
+      "hostUsername": "testuser"
+    }
+  },
+  "onlinePlayers": {}
+}
